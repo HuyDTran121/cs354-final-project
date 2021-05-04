@@ -2,8 +2,12 @@
 
 import cv2
 import mediapipe as mp
+import numpy as np
+import image_processor
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
+
+glasses = image_processor.loadImage("./data/glasses.png")
 
 # For webcam input:
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
@@ -29,15 +33,17 @@ with mp_face_mesh.FaceMesh(
     # Draw the face mesh annotations on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    if results.multi_face_landmarks:
-      for face_landmarks in results.multi_face_landmarks:
-        mp_drawing.draw_landmarks(
-            image=image,
-            landmark_list=face_landmarks,
-            connections=mp_face_mesh.FACE_CONNECTIONS,
-            landmark_drawing_spec=drawing_spec,
-            connection_drawing_spec=drawing_spec)
-    cv2.imshow('MediaPipe FaceMesh', image)
+    image[0][0] = [255,255,255]
+    drawn = image_processor.drawImage(glasses, image, 0, 0)
+    # if results.multi_face_landmarks:
+    #   for face_landmarks in results.multi_face_landmarks:
+    #     mp_drawing.draw_landmarks(
+    #         image=image,
+    #         landmark_list=face_landmarks,
+    #         connections=mp_face_mesh.FACE_CONNECTIONS,
+    #         landmark_drawing_spec=drawing_spec,
+    #         connection_drawing_spec=drawing_spec)
+    cv2.imshow('MediaPipe FaceMesh', drawn)
     if cv2.waitKey(5) & 0xFF == 27:
       break
 cap.release()
