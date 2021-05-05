@@ -11,14 +11,28 @@ def loadImage(path):
 def drawImage(overlay, background, x, y):
     height, width,_ = np.shape(overlay)
     bgheight, bgwidth,_ = np.shape(background)
-    rbound = min(x + width, bgwidth)
-    dbound = min(y + height, bgheight)
-    alphaOverlay = overlay[:,:,3]/255.0
+     # Image ranges
+    y1, y2 = max(0, y), min(background.shape[0], y + overlay.shape[0])
+    x1, x2 = max(0, x), min(background.shape[1], x + overlay.shape[1])
+
+    # Overlay ranges
+    y1o, y2o = max(0, -y), min(overlay.shape[0], background.shape[0] - y)
+    x1o, x2o = max(0, -x), min(overlay.shape[1], background.shape[1] - x)
+
+    alphaOverlay = overlay[y1o:y2o,x1o:x2o,3]/255.0
     alphaBackground = 1- alphaOverlay
-    # print(np.shape(alphaOverlay * overlay[:,:,0:3]))
-    # cv2.addWeighted(overlay,1,background,0,0,background)
+
+
+    bg_crop = background[y1:y2, x1:x2]
+    overlay_crop = overlay[y1o:y2o, x1o:x2o]
+
+    # for channel in range(0,3):
+    #     print(np.shape(alphaOverlay * overlay[y1o:y2o, x1o:x2o,channel]))
+    #     print(np.shape(alphaBackground * background[y1:y2, x1:x2,channel]))
+    # # cv2.addWeighted(overlay,1,background,0,0,background)
     for channel in range(0,3):
-        background[y:dbound,x:rbound,channel] = (alphaOverlay * overlay[:,:,channel] + alphaBackground * background[y:dbound,x:rbound,channel])
+        background[y1:y2,x1:x2,channel] = (alphaOverlay * overlay[y1o:y2o, x1o:x2o,channel] + alphaBackground * background[y1:y2, x1:x2,channel])
+    # background = alphaOverlay * overlay_crop + alphaBackground * bg_crop
     return background
 
 

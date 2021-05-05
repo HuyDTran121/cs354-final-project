@@ -4,6 +4,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import image_processor
+from mediapipe.framework.formats import landmark_pb2
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
 
@@ -33,9 +34,12 @@ with mp_face_mesh.FaceMesh(
     # Draw the face mesh annotations on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    image[0][0] = [255,255,255]
-    drawn = image_processor.drawImage(glasses, image, 0, 0)
-    # if results.multi_face_landmarks:
+    # image[0][0] = [255,255,255]
+    if results.multi_face_landmarks:
+      height, width,_ = np.shape(image)
+      x = int(results.multi_face_landmarks[0].landmark[159].x * width)
+      y = int(results.multi_face_landmarks[0].landmark[159].y * height)
+      image = image_processor.drawImage(glasses, image, x-100, y-50)
     #   for face_landmarks in results.multi_face_landmarks:
     #     mp_drawing.draw_landmarks(
     #         image=image,
@@ -43,7 +47,7 @@ with mp_face_mesh.FaceMesh(
     #         connections=mp_face_mesh.FACE_CONNECTIONS,
     #         landmark_drawing_spec=drawing_spec,
     #         connection_drawing_spec=drawing_spec)
-    cv2.imshow('MediaPipe FaceMesh', drawn)
+    cv2.imshow('MediaPipe FaceMesh', image)
     if cv2.waitKey(5) & 0xFF == 27:
       break
 cap.release()
