@@ -4,11 +4,14 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import image_processor
+import os.path
+from os import path
 from mediapipe.framework.formats import landmark_pb2
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
 
 glasses = image_processor.loadImage("./data/glasses.png")
+print(path.exists("./data/face_1.jpg"))
 
 # For webcam input:
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
