@@ -4,6 +4,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import image_processor
+import face_detect
 import os.path
 from os import path
 from mediapipe.framework.formats import landmark_pb2
@@ -49,6 +50,10 @@ with mp_face_mesh.FaceMesh(
       print(angle)
       rot_mat = cv2.getRotationMatrix2D(tuple(np.array(glasses.shape[1::-1]) / 2), angle, 1)
       rotated = cv2.warpAffine(glasses, rot_mat, glasses.shape[1::-1], flags=cv2.INTER_LINEAR)
+
+      bounding_boxes = face_detect.detect_face(image)
+      for (x, y, w, h)  in bounding_boxes:
+        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
       image = image_processor.drawImage(rotated, image, lx-100, ly-50)
     #   for face_landmarks in results.multi_face_landmarks:
     #     mp_drawing.draw_landmarks(
