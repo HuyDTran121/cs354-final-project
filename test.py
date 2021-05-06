@@ -13,6 +13,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
 
 glasses = image_processor.loadImage("./data/glasses.png")
+template = image_processor.loadImage("./data/template.png")
 print(path.exists("./data/face_1.jpg"))
 
 # For webcam input:
@@ -46,15 +47,30 @@ with mp_face_mesh.FaceMesh(
       ly = int(results.multi_face_landmarks[0].landmark[159].y * height)
       rx = int(results.multi_face_landmarks[0].landmark[386].x * width)
       ry = int(results.multi_face_landmarks[0].landmark[386].y * height)
+      mask = glasses
+      # Scale
+      dist = math.sqrt((rx - lx) ** 2 + (ry - ly) ** 2)
+      print(dist)
+      scale = dist / 160
+      mask = cv2.resize(mask,(int(scale * width), int(scale * height)))
+
+      # Rotation
       angle = -math.atan((ry-ly)/(rx-lx)) * 360 / (2*math.pi)
       print(angle)
-      rot_mat = cv2.getRotationMatrix2D(tuple(np.array(glasses.shape[1::-1]) / 2), angle, 1)
-      rotated = cv2.warpAffine(glasses, rot_mat, glasses.shape[1::-1], flags=cv2.INTER_LINEAR)
+      rot_mat = cv2.getRotationMatrix2D(tuple(np.array(mask.shape[1::-1]) / 2), angle, 1)
+      rotated = cv2.warpAffine(mask, rot_mat, mask.shape[1::-1], flags=cv2.INTER_LINEAR)
+
+      xoffset = int(scale * 250)
+      yoffset = int(scale * 200)
+      rotated_offset = rot_mat * np.array([xoffset,yoffset,1])
+      # xoffset = rotated_offset[0]
+      # yoffset = rotated_offset[1]
+      print(xoffset, yoffset)
 
       bounding_boxes = face_detect.detect_face(image)
       for (x, y, w, h)  in bounding_boxes:
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-      image = image_processor.drawImage(rotated, image, lx-100, ly-50)
+      image = image_processor.drawImage(rotated, image, lx-xoffset, ly-yoffset)
     #   for face_landmarks in results.multi_face_landmarks:
     #     mp_drawing.draw_landmarks(
     #         image=image,

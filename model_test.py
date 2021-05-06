@@ -2,7 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import data_preprocess as dp
-import keras
+# import tensorflow as tf
+# from keras.models import Sequential, Model, load_model
+# from keras.layers import Activation, Convolution2D, MaxPooling2D, BatchNormalization, Flatten, Dense, Dropout, Conv2D, MaxPool2D, ZeroPadding2D, GlobalAveragePooling2D
+# from keras.layers.advanced_activations import LeakyReLU
+# from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
+# from keras.optimizers import Adam
 
 idlookup_df = pd.read_csv("./data/facial-keypoints-detection/IdLookupTable.csv")
 train_df = pd.read_csv("./data/facial-keypoints-detection/training.csv")
@@ -40,37 +45,37 @@ full_train_images = np.concatenate((full_train_images, unclean_train_images))
 full_train_keypoints = np.concatenate((full_train_keypoints, unclean_train_keypoints))
 print("Shape of train_images: {}".format(np.shape(full_train_images)))
 print("Shape of train_keypoints: {}".format(np.shape(full_train_keypoints)))
-
+print(type(full_train_images[0]))
 #Model Arch
-model = Sequential()
+# model = Sequential()
 
-model.add(BatchNormalization(input_shape=(96, 96, 1)))
-model.add(Convolution2D(24, 5, 5, border_mode="same", init= "he_normal", input_shape=(96, 96, 1), dim_ordering="tf"))
-model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode="valid"))
+# model.add(BatchNormalization(input_shape=(96, 96, 1)))
+# model.add(Convolution2D(24, 5, 5, padding="same", input_shape=(96, 96, 1), data_format="channels_first"))
+# model.add(Activation("relu"))
+# # model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="valid"))
 
-model.add(Convolution2D(36, 5, 5))
-model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode="valid"))
+# # model.add(Convolution2D(36, 5, 5))
+# # model.add(Activation("relu"))
+# # model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="valid"))
 
-model.add(Convolution2D(48, 5, 5))
-model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode="valid"))
+# # model.add(Convolution2D(48, 5, 5))
+# # model.add(Activation("relu"))
+# # model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="valid"))
 
-model.add(Convolution2D(64, 3, 3))
-model.add(Activation("relu"))
-model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), border_mode="valid"))
+# # model.add(Convolution2D(64, 3, 3))
+# # model.add(Activation("relu"))
+# # model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="valid"))
 
-model.add(Convolution2D(64, 3, 3))
-model.add(Activation("relu"))
+# # model.add(Convolution2D(64, 3, 3))
+# # model.add(Activation("relu"))
 
-model.add(GlobalAveragePooling2D())
+# model.add(GlobalAveragePooling2D())
 
-model.add(Dense(500, activation="relu"))
-model.add(Dense(90, activation="relu"))
-model.add(Dense(30)) 
+# model.add(Dense(500, activation="relu"))
+# model.add(Dense(90, activation="relu"))
+# model.add(Dense(30)) 
 
-model.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
-checkpointer = ModelCheckpoint(filepath='face_model.h5', verbose=1, save_best_only=True)
-epochs = 30
-hist = model.fit(full_train_images, full_train_keypoints, validation_split=0.2, shuffle=True, epochs=epochs, batch_size=20, callbacks=[checkpointer], verbose=1)
+# model.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
+# checkpointer = ModelCheckpoint(filepath='face_model.h5', verbose=1, save_best_only=True)
+# epochs = 30
+# hist = model.fit(full_train_images, full_train_keypoints, validation_split=0.2, shuffle=True, epochs=epochs, batch_size=20, callbacks=[checkpointer], verbose=1)
