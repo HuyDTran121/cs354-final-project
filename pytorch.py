@@ -19,18 +19,17 @@ class FaceDetector(torch.nn.Module):
         self.conv2 = nn.Conv2d(16,32,3)
         self.conv3 = nn.Conv2d(32,64,3)
         self.pool = nn.MaxPool2d(2,2)
-        self.linear1 = nn.Linear(64 * 3 * 3, 64)
+        self.linear1 = nn.Linear(6400, 64)
         self.linear2 = nn.Linear(64, 30)
 
     def forward(self, x):
-        print(x.shape)
         x = self.pool(F.relu(self.conv1(x)))
-        print("here")
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
         x = torch.flatten(x,1)
-        x.F.relu(self.linear1(x))
-        x.F.relu(self.linear2(x))
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        return x
 
 # Load in data
 
@@ -75,10 +74,10 @@ print("Shape of train_keypoints: {}".format(np.shape(full_train_keypoints)))
 tensor_x = torch.Tensor(full_train_images)
 tensor_y = torch.Tensor(full_train_keypoints)
 tensor_dataset = TensorDataset(tensor_x, tensor_y)
-dataloader = DataLoader(tensor_dataset)
+dataloader = DataLoader(tensor_dataset, batch_size=32)
 
 # Set up model
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 model = FaceDetector()
@@ -92,15 +91,15 @@ optimizer = optim.SGD(model.parameters(), lr = .001, momentum=.9)
 for epoch in range(50):
     print("epoch", epoch)
     model.train()
-    for x,y in tensor_dataset:
-        print(x.shape)
+    for x,y in dataloader:
         x = x.to(device)
+        x = torch.reshape(x, (x.shape[0],1,96,96))
         y = y.to(device)
         y_pred = model(x)
         y_pred.to(device)
         loss_val = loss(y_pred, y)
-        loss_val.backward(loss)
+        loss_val.backward()
         optimizer.step()
         optimizer.zero_grad()
-    save_model(model)
-    
+model.eval()
+save_model(model)   
